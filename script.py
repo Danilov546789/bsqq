@@ -46,11 +46,15 @@ def main():
     # 4. ИЗМЕНЕНО: Скорректирован текст логов для нескольких стран
     print(f"Найдено в сумме {len(filtered_configs)} серверов для выбранных регионов.")
 
-    if not filtered_configs:
+      if not filtered_configs:
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Берем нужное количество серверов
+    # 1. Сортируем отфильтрованные сервера по алфавиту
+    # Теперь они выстроятся по порядку: сначала Germany #1, #2... затем Netherlands #1, #2...
+    filtered_configs.sort()
+
+    # 2. Берем нужное количество серверов (уже отсортированных)
     top_servers = filtered_configs[:MAX_GOOD_SERVERS]
     
     # Объединяем их в обычный текст, где каждый сервер с новой строки
@@ -61,6 +65,3 @@ def main():
         f.write(final_text)
         
     print(f"Успешно! Сохранено {len(top_servers)} свежих текстовых серверов в файл vlessbs")
-
-if __name__ == "__main__":
-    main()
