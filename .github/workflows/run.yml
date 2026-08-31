@@ -27,6 +27,6 @@ jobs:
       run: |
         git config --local user.email "actions@github.com"
         git config --local user.name "GitHub Actions"
-        git add sub.txt
+        git add vlessbs
         git commit -m "Авто-обновление прокси: $(date)" || echo "Нет изменений"
         git push
