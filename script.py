@@ -8,7 +8,7 @@ SOURCE_URL = "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_
 # НАСТРОЙКИ ФИЛЬТРАЦИИ И ОТБОРА
 # 1. ИЗМЕНЕНО: Заменили одну строку на список стран (пишите строго маленькими буквами в кавычках через запятую)
 TARGET_COUNTRIES = ["netherlands", "germany", "finland"] 
-MAX_GOOD_SERVERS = 15            # Сколько серверов оставить в подписке
+MAX_GOOD_SERVERS = 20            # Сколько серверов оставить в подписке
 
 def get_raw_configs():
     try:
