@@ -37,11 +37,9 @@ def main():
     for cfg in all_configs:
         cfg_lower = cfg.lower()
         
-        # Самая надежная проверка: просто ищем подстроку страны в тексте всей ссылки
+        # Проверяем только наличие нужной страны в ссылке
         if any(country in cfg_lower for country in TARGET_COUNTRIES):
-            # Отсекаем неподходящие протоколы для обхода БС
-            if "reality" not in cfg_lower and "grpc" not in cfg_lower:
-                filtered_configs.append(cfg)
+            filtered_configs.append(cfg)
                 
     print(f"Найдено в сумме {len(filtered_configs)} серверов для выбранных регионов.")
 
@@ -49,7 +47,7 @@ def main():
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Простая и надежная сортировка без кастомных ключей, которая никогда не вызовет ошибку
+    # Надежная сортировка
     filtered_configs.sort()
 
     # Извлекаем нужное количество серверов
