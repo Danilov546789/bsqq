@@ -46,7 +46,7 @@ def main():
     # 4. ИЗМЕНЕНО: Скорректирован текст логов для нескольких стран
     print(f"Найдено в сумме {len(filtered_configs)} серверов для выбранных регионов.")
 
-      if not filtered_configs:
+    if not filtered_configs:
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
