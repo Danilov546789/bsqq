@@ -36,8 +36,10 @@ def main():
     filtered_configs = []
     for cfg in all_configs:
         if '#' in cfg:
-            # Исправлено: берем строго текстовую часть после решетки (имя сервера)
-            name_part = cfg.split('#', 1)[1].lower()
+            # Безопасно делим строку по знаку решетки
+            parts = cfg.split('#', 1)
+            # Берем строго вторую часть (текстовое имя после #) и приводим к маленьким буквам
+            name_part = parts[1].lower()
             cfg_lower = cfg.lower()
             
             # Фильтр по странам + защита от неподходящих под БС протоколов (Reality/gRPC)
@@ -51,11 +53,22 @@ def main():
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Красивая и умная сортировка: выстраиваем сервера строго по имени после знака #
-    filtered_configs.sort(key=lambda x: x.split('#', 1)[1].lower() if '#' in x else x.lower())
+    # Безопасная сортировка: временно создаем пары (имя_сервера, вся_ссылка),
+    # сортируем их по имени, а потом забираем обратно чистые ссылки.
+    temp_list = []
+    for cfg in filtered_configs:
+        parts = cfg.split('#', 1)
+        name_for_sort = parts[1].lower() if len(parts) > 1 else cfg.lower()
+        temp_list.append((name_for_sort, cfg))
+    
+    # Сортируем по первому элементу (красивому имени после #)
+    temp_list.sort(key=lambda item: item[0])
+    
+    # Собираем обратно отсортированный список ссылок
+    sorted_configs = [item[1] for item in temp_list]
 
-    # Берем нужное количество упорядоченных серверов
-    top_servers = filtered_configs[:MAX_GOOD_SERVERS]
+    # Берем нужное количество упорядоченных серверов (до 30 штук)
+    top_servers = sorted_configs[:MAX_GOOD_SERVERS]
     
     # Объединяем их в обычный текст, где каждый сервер с новой строки
     final_text = "\n".join(top_servers)
