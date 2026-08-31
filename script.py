@@ -37,9 +37,9 @@ def main():
     for cfg in all_configs:
         cfg_lower = cfg.lower()
         
-        # Проверяем наличие страны во всей строке
+        # Самая надежная проверка: просто ищем подстроку страны в тексте всей ссылки
         if any(country in cfg_lower for country in TARGET_COUNTRIES):
-            # Отсекаем неподходящие протоколы
+            # Отсекаем неподходящие протоколы для обхода БС
             if "reality" not in cfg_lower and "grpc" not in cfg_lower:
                 filtered_configs.append(cfg)
                 
@@ -49,25 +49,20 @@ def main():
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Идеальная и безопасная сортировка по части после знака #
-    def get_sort_key(config_str):
-        if '#' in config_str:
-            return config_str.split('#', 1)[1].lower()
-        return config_str.lower()
+    # Простая и надежная сортировка без кастомных ключей, которая никогда не вызовет ошибку
+    filtered_configs.sort()
 
-    filtered_configs.sort(key=get_sort_key)
-
-    # Берем нужное количество упорядоченных серверов (до 30 штук)
+    # Извлекаем нужное количество серверов
     top_servers = filtered_configs[:MAX_GOOD_SERVERS]
     
-    # Объединяем их в обычный текст
+    # Объединяем их в обычный текст через перенос строки
     final_text = "\n".join(top_servers)
     
-    # Сохраняем в ваш файл vlessbs в чистом текстовом виде
+    # Записываем результат в ваш файл vlessbs в чистом текстовом виде
     with open("vlessbs", "w", encoding="utf-8") as f:
         f.write(final_text)
         
-    print(f"Успешно! Сохранено {len(top_servers)} упорядоченных текстовых серверов в файл vlessbs")
+    print(f"Успешно! Сохранено {len(top_servers)} текстовых серверов в файл vlessbs")
 
 if __name__ == "__main__":
     main()
