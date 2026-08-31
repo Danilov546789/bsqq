@@ -3,7 +3,7 @@ import base64
 import re
 
 # ССЫЛКА НА ИСХОДНЫЙ ФАЙЛ
-SOURCE_URL = "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_universal.txt" 
+SOURCE_URL = "https://githubusercontent.com" 
 
 # НАСТРОЙКИ ФИЛЬТРАЦИИ И ОТБОРА
 TARGET_COUNTRIES = ["netherlands", "germany", "finland"] 
@@ -17,7 +17,7 @@ def get_raw_configs():
             content = base64.b64decode(content).decode('utf-8', errors='ignore')
         
         configs = re.findall(r'(vless://\S+|vmess://\S+|ss://\S+|trojan://\S+|shadowsocks://\S+)', content)
-        return list(set(configs))  # Убираем duplicate-конфиги
+        return list(set(configs))  # Убираем дубликаты
     except Exception as e:
         print(f"Не удалось скачать базу: {e}")
         return []
@@ -36,12 +36,12 @@ def main():
     filtered_configs = []
     for cfg in all_configs:
         if '#' in cfg:
-            # Безопасно берем часть после решетки
-            name_part = cfg.split('#', 1)[1]
+            # Исправлено: берем строго текстовую часть после решетки (имя сервера)
+            name_part = cfg.split('#', 1)[1].lower()
             cfg_lower = cfg.lower()
             
             # Фильтр по странам + защита от неподходящих под БС протоколов (Reality/gRPC)
-            if any(country in name_part.lower() for country in TARGET_COUNTRIES):
+            if any(country in name_part for country in TARGET_COUNTRIES):
                 if "reality" not in cfg_lower and "grpc" not in cfg_lower:
                     filtered_configs.append(cfg)
                 
@@ -51,7 +51,7 @@ def main():
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Сортируем список строго по текстовому названию страны и номеру сервера (после знака #)
+    # Красивая и умная сортировка: выстраиваем сервера строго по имени после знака #
     filtered_configs.sort(key=lambda x: x.split('#', 1)[1].lower() if '#' in x else x.lower())
 
     # Берем нужное количество упорядоченных серверов
