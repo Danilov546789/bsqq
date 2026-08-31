@@ -2,12 +2,13 @@ import requests
 import base64
 import re
 
-# ССЫЛКА НА ИСХОДНЫЙ ФАЙЛ (Укажите вашу ссылку, где 200+ серверов)
+# ССЫЛКА НА ИСХОДНЫЙ ФАЙЛ
 SOURCE_URL = "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_universal.txt" 
 
 # НАСТРОЙКИ ФИЛЬТРАЦИИ И ОТБОРА
-TARGET_COUNTRY = "Netherlands"  # Какую страну оставить? (Например: Poland, Netherlands)
-MAX_GOOD_SERVERS = 10            # Сколько серверов оставить в подписке
+# 1. ИЗМЕНЕНО: Заменили одну строку на список стран (пишите строго маленькими буквами в кавычках через запятую)
+TARGET_COUNTRIES = ["netherlands", "germany", "finland"] 
+MAX_GOOD_SERVERS = 15            # Сколько серверов оставить в подписке
 
 def get_raw_configs():
     try:
@@ -31,23 +32,25 @@ def main():
         return
 
     print(f"Успешно загружено {len(all_configs)} конфигураций.")
-    print(f"Фильтруем сервера по стране: {TARGET_COUNTRY}...")
+    # 2. ИЗМЕНЕНО: Красивый вывод списка стран в логи
+    print(f"Фильтруем сервера по странам: {', '.join(TARGET_COUNTRIES)}...")
     
     filtered_configs = []
     for cfg in all_configs:
         if '#' in cfg:
             name_part = cfg.split('#')[1]
-            if TARGET_COUNTRY.lower() in name_part.lower():
+            # 3. ИЗМЕНЕНО: Проверяем, есть ли хотя бы одна страна из нашего списка в названии сервера
+            if any(country in name_part.lower() for country in TARGET_COUNTRIES):
                 filtered_configs.append(cfg)
                 
-    print(f"Найдено {len(filtered_configs)} серверов для региона {TARGET_COUNTRY}.")
+    # 4. ИЗМЕНЕНО: Скорректирован текст логов для нескольких стран
+    print(f"Найдено в сумме {len(filtered_configs)} серверов для выбранных регионов.")
 
     if not filtered_configs:
-        print(f"В исходном файле не найдено серверов для страны: {TARGET_COUNTRY}")
+        print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # Вместо пинга из дата-центра мы просто берем первые 5 свежих серверов.
-   # Берем нужное количество серверов
+    # Берем нужное количество серверов
     top_servers = filtered_configs[:MAX_GOOD_SERVERS]
     
     # Объединяем их в обычный текст, где каждый сервер с новой строки
