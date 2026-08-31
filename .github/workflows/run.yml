@@ -29,4 +29,4 @@ jobs:
         git config --local user.name "GitHub Actions"
         git add vlessbs
         git commit -m "Авто-обновление прокси: $(date)" || echo "Нет изменений"
-        git push --force
+        git push
