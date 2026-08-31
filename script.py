@@ -47,18 +47,17 @@ def main():
         return
 
     # Вместо пинга из дата-центра мы просто берем первые 5 свежих серверов.
-    # Так как исходный файл обновляется авторами под обход БС, они гарантированно рабочие.
+   # Берем нужное количество серверов
     top_servers = filtered_configs[:MAX_GOOD_SERVERS]
     
-    # Собираем результат и кодируем в Base64
+    # Объединяем их в обычный текст, где каждый сервер с новой строки
     final_text = "\n".join(top_servers)
-    b64_output = base64.b64encode(final_text.encode('utf-8')).decode('utf-8')
     
-    # Сохраняем в ваш файл vlessbs
-    with open("vlessbs", "w") as f:
-        f.write(b64_output)
+    # Сохраняем в ваш файл vlessbs в чистом текстовом виде БЕЗ Base64
+    with open("vlessbs", "w", encoding="utf-8") as f:
+        f.write(final_text)
         
-    print(f"Успешно! Сохранено {len(top_servers)} свежих серверов для {TARGET_COUNTRY} в файл vlessbs")
+    print(f"Успешно! Сохранено {len(top_servers)} свежих текстовых серверов в файл vlessbs")
 
 if __name__ == "__main__":
     main()
