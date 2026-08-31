@@ -6,7 +6,6 @@ import re
 SOURCE_URL = "https://raw.githubusercontent.com/zieng2/wl/refs/heads/main/vless_universal.txt" 
 
 # НАСТРОЙКИ ФИЛЬТРАЦИИ И ОТБОРА
-# 1. ИЗМЕНЕНО: Заменили одну строку на список стран (пишите строго маленькими буквами в кавычках через запятую)
 TARGET_COUNTRIES = ["netherlands", "germany", "finland"] 
 MAX_GOOD_SERVERS = 30            # Сколько серверов оставить в подписке
 
@@ -18,7 +17,7 @@ def get_raw_configs():
             content = base64.b64decode(content).decode('utf-8', errors='ignore')
         
         configs = re.findall(r'(vless://\S+|vmess://\S+|ss://\S+|trojan://\S+|shadowsocks://\S+)', content)
-        return list(set(configs))  # Убираем дубликаты
+        return list(set(configs))  # Убираем duplicate-конфиги
     except Exception as e:
         print(f"Не удалось скачать базу: {e}")
         return []
@@ -32,29 +31,30 @@ def main():
         return
 
     print(f"Успешно загружено {len(all_configs)} конфигураций.")
-    # 2. ИЗМЕНЕНО: Красивый вывод списка стран в логи
     print(f"Фильтруем сервера по странам: {', '.join(TARGET_COUNTRIES)}...")
     
     filtered_configs = []
     for cfg in all_configs:
         if '#' in cfg:
-            name_part = cfg.split('#')[1]
-            # 3. ИЗМЕНЕНО: Проверяем, есть ли хотя бы одна страна из нашего списка в названии сервера
+            # Безопасно берем часть после решетки
+            name_part = cfg.split('#', 1)[1]
+            cfg_lower = cfg.lower()
+            
+            # Фильтр по странам + защита от неподходящих под БС протоколов (Reality/gRPC)
             if any(country in name_part.lower() for country in TARGET_COUNTRIES):
-                filtered_configs.append(cfg)
+                if "reality" not in cfg_lower and "grpc" not in cfg_lower:
+                    filtered_configs.append(cfg)
                 
-    # 4. ИЗМЕНЕНО: Скорректирован текст логов для нескольких стран
     print(f"Найдено в сумме {len(filtered_configs)} серверов для выбранных регионов.")
 
     if not filtered_configs:
         print(f"В исходном файле не найдено серверов для стран: {', '.join(TARGET_COUNTRIES)}")
         return
 
-    # 1. Сортируем отфильтрованные сервера по алфавиту
-    # Теперь они выстроятся по порядку: сначала Germany #1, #2... затем Netherlands #1, #2...
-    filtered_configs.sort()
+    # Сортируем список строго по текстовому названию страны и номеру сервера (после знака #)
+    filtered_configs.sort(key=lambda x: x.split('#', 1)[1].lower() if '#' in x else x.lower())
 
-    # 2. Берем нужное количество серверов (уже отсортированных)
+    # Берем нужное количество упорядоченных серверов
     top_servers = filtered_configs[:MAX_GOOD_SERVERS]
     
     # Объединяем их в обычный текст, где каждый сервер с новой строки
@@ -64,4 +64,7 @@ def main():
     with open("vlessbs", "w", encoding="utf-8") as f:
         f.write(final_text)
         
-    print(f"Успешно! Сохранено {len(top_servers)} свежих текстовых серверов в файл vlessbs")
+    print(f"Успешно! Сохранено {len(top_servers)} упорядоченных текстовых серверов в файл vlessbs")
+
+if __name__ == "__main__":
+    main()
